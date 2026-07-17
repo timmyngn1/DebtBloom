@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DebtBloom — grow your way out of debt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<style>
+  :root {
+    --sky-top: #FCEFD9;
+    --sky-bottom: #F6E3C8;
+    --sun: #F6C453;
+    --meadow: #BBD68C;
+    --meadow-dark: #94BA63;
+    --soil: #8A6A47;
+    --card: #FFFDF8;
+    --ink: #3A3A2E;
+    --ink-soft: #6E6A57;
+    --line: #E8E0CF;
+    --leaf: #5E8C3D;
+    --leaf-dark: #4A7030;
+    --display: "Fraunces", Georgia, serif;
+    --body: "Nunito Sans", -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--body);
+    color: var(--ink);
+    background: #F4EFE4;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  header { text-align: center; margin-bottom: 24px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; }
+  .logo-mark { font-size: 30px; }
+  h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 38px;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+  .tagline { color: var(--ink-soft); margin: 6px 0 0; font-size: 16px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 0 0 22px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .stat-num { font-family: var(--display); font-size: 26px; font-weight: 600; }
+  .stat-num.green { color: var(--leaf); }
+  .stat-label { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+
+  .garden-frame {
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(120, 100, 60, 0.08);
+    margin-bottom: 14px;
+    background: var(--sky-top);
+  }
+  #garden { display: block; width: 100%; height: auto; }
+
+  .empty-hint {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin: 0 0 28px;
+    font-style: italic;
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  .sync-panel { border-color: #9FE1CB; background: #F5FBF3; }
+  .sync-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .sync-actions { display: flex; gap: 8px; }
+  .autosync { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); margin-top: 14px; cursor: pointer; }
+  .autosync input { width: 16px; height: 16px; accent-color: var(--leaf); }
+  .test-tool { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; color: var(--ink-soft); }
+  .test-tool input { width: 90px; flex: none; padding: 7px 10px; font-size: 14px; border: 1px solid var(--line); border-radius: 10px; background: #FFFEFB; }
+  .sync-panel.working { border-color: var(--sun); }
+  .panel h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 20px;
+    margin: 0 0 14px;
+  }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  input[type="text"], input[type="number"] {
+    font-family: var(--body);
+    font-size: 15px;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #FFFEFB;
+    color: var(--ink);
+    flex: 1;
+    min-width: 120px;
+  }
+  input:focus { outline: 2px solid var(--leaf); outline-offset: 1px; }
+
+  button {
+    font-family: var(--body);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 11px 20px;
+    border: none;
+    border-radius: 12px;
+    background: var(--leaf);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover { background: var(--leaf-dark); }
+  button:active { transform: translateY(1px); }
+  button.ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    font-weight: 600;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  button.ghost:hover { background: #F4EFE4; color: var(--ink); }
+
+  .debt {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .debt.paid { border-color: var(--meadow); background: #F3F8EA; }
+  .debt-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .debt-name { font-family: var(--display); font-size: 18px; font-weight: 600; }
+  .debt-bal { font-size: 14px; color: var(--ink-soft); }
+  .debt-bal b { color: var(--ink); font-weight: 700; }
+
+  .bar { height: 9px; background: #EFE9DA; border-radius: 6px; margin: 12px 0; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--leaf); border-radius: 6px; transition: width 0.5s ease; }
+
+  .pay-row { display: flex; gap: 8px; margin-top: 10px; }
+  .pay-row input { flex: 1; }
+
+  .paid-badge {
+    display: inline-block;
+    background: var(--leaf);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  /* Edit & delete debts */
+  .debt-right { display: flex; align-items: center; gap: 6px; }
+  .icon-btn {
+    background: none; border: none; cursor: pointer; font-size: 13px;
+    padding: 3px 6px; border-radius: 8px; opacity: 0.55; line-height: 1;
+  }
+  .icon-btn:hover { background: #F1EDDF; opacity: 1; }
+  .edit-form { display: flex; flex-direction: column; gap: 6px; }
+  .edit-label { font-size: 12px; color: var(--ink-soft); font-weight: 600; }
+  .edit-form input {
+    padding: 9px 12px; font-size: 14px; border: 1px solid var(--line);
+    border-radius: 10px; background: #FFFEFB; color: var(--ink);
+    font-family: var(--body);
+  }
+  .edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+  .apr-tag {
+    display: inline-block;
+    background: #F6E3C8;
+    color: #8A5A1E;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  .interest-note {
+    font-size: 12.5px;
+    color: #A65B2E;
+    margin-top: -2px;
+  }
+
+  /* Time machine */
+  .tm-baseline { font-size: 15px; color: var(--ink); margin-bottom: 18px; }
+  .tm-baseline input {
+    width: 100px; flex: none; display: inline-block;
+    padding: 8px 12px; margin: 0 4px; font-size: 15px;
+    border: 1px solid var(--line); border-radius: 10px; background: #FFFEFB;
+    font-weight: 700; color: var(--leaf-dark);
+  }
+  .tm-slider-wrap { margin-bottom: 18px; }
+  .tm-slider-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .tm-slider-top span:first-child { font-size: 14px; color: var(--ink-soft); font-weight: 600; }
+  .tm-extra { font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--leaf); }
+  #tmSlider { width: 100%; accent-color: var(--leaf); height: 6px; cursor: pointer; }
+  .tm-result { border-radius: 14px; }
+  .tm-empty, .tm-nudge, .tm-baseline-line { color: var(--ink-soft); font-size: 14px; }
+  .tm-baseline-line { color: var(--ink); font-size: 15px; line-height: 1.6; }
+  .tm-nudge { margin-top: 8px; font-style: italic; }
+  .tm-warn {
+    background: #FAEEDA; color: #8A5A1E; border-radius: 12px;
+    padding: 12px 14px; font-size: 14px; margin-bottom: 10px;
+  }
+  .tm-headline {
+    background: #F5FAEE; border: 1px solid var(--meadow);
+    border-radius: 14px; padding: 16px; font-size: 16px; line-height: 1.6;
+    color: var(--ink);
+  }
+  .tm-headline b { color: var(--leaf-dark); }
+  .tm-compare { display: flex; align-items: stretch; gap: 12px; margin-top: 14px; }
+  .tm-col {
+    flex: 1; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px; text-align: center; background: #FFFEFB;
+  }
+  .tm-col-win { border-color: var(--meadow); background: #F5FAEE; }
+  .tm-col-label { font-size: 12px; color: var(--ink-soft); font-weight: 700; margin-bottom: 6px; }
+  .tm-col-big { font-family: var(--display); font-size: 24px; font-weight: 600; }
+  .tm-col-win .tm-col-big { color: var(--leaf); }
+  .tm-col-sub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; }
+  .tm-arrow { display: flex; align-items: center; color: var(--ink-soft); font-size: 20px; }
+
+  /* Goals */
+  .goal {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .goal-done { border-color: var(--meadow); background: #F3F8EA; }
+  .goal-foot { font-size: 13px; color: var(--ink-soft); margin-top: 10px; }
+  .goal-foot b { color: var(--ink); }
+  .goal-x {
+    background: none; border: none; color: var(--ink-soft);
+    font-size: 14px; padding: 2px 6px; cursor: pointer; font-weight: 700;
+  }
+  .goal-x:hover { background: none; color: #B6452F; }
+  .pace-badge {
+    display: inline-block; font-size: 12px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .pace-good   { background: #E5F1D3; color: #3B6D11; }
+  .pace-behind { background: #FAEEDA; color: #8A5A1E; }
+  .pace-miss   { background: #F7E0DA; color: #A6371C; }
+  .pace-done   { background: var(--leaf); color: #fff; }
+  .footer-note {
+    text-align: center; font-size: 13px; color: var(--ink-soft); margin-top: 30px;
+  }
+  .footer-note button { background: none; color: #B6452F; font-weight: 600; padding: 4px; font-size: 13px; }
+  .footer-note button:hover { background: none; text-decoration: underline; }
+
+  /* Medals */
+  .medal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .medal {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: #FFFEFB;
+    transition: transform 0.15s;
+  }
+  .medal.earned { border-color: var(--meadow); background: #F5FAEE; }
+  .medal.locked { opacity: 0.55; }
+  .medal-icon {
+    font-size: 26px;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: #F1EDDF;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .medal.earned .medal-icon { background: #E5F1D3; }
+  .medal-title { font-family: var(--display); font-weight: 600; font-size: 15px; line-height: 1.2; }
+  .medal-desc { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .medal-count { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+
+  /* Celebration toast */
+  #toastWrap {
+    position: fixed;
+    top: 20px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; gap: 10px;
+    z-index: 999; pointer-events: none;
+    width: min(340px, 92vw);
+  }
+  .toast {
+    background: var(--card);
+    border: 1px solid var(--meadow);
+    border-left: 5px solid var(--leaf);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 10px 30px rgba(90, 70, 30, 0.15);
+    display: flex; gap: 12px; align-items: center;
+    animation: toastIn 0.35s ease, toastOut 0.4s ease 3.6s forwards;
+  }
+  .toast-icon { font-size: 28px; }
+  .toast-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--leaf); }
+  .toast-title { font-family: var(--display); font-weight: 600; font-size: 16px; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateY(-14px); } }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 30px; }
+    .stats { grid-template-columns: 1fr; }
+    .medal-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="toastWrap"></div>
+<div class="wrap">
+
+  <header>
+    <div class="logo">
+      <span class="logo-mark">🌱</span>
+      <h1>DebtBloom</h1>
+    </div>
+    <p class="tagline">Every payment plants something. Watch your field come back to life.</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num green" id="statPaid">$0</div><div class="stat-label">paid off</div></div>
+    <div class="stat"><div class="stat-num" id="statLeft">$0</div><div class="stat-label">remaining</div></div>
+    <div class="stat"><div class="stat-num" id="statBloom">0</div><div class="stat-label">flowers bloomed</div></div>
+  </div>
+
+  <div class="garden-frame">
+    <svg id="garden" viewBox="0 0 920 380" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+  <p class="empty-hint" id="emptyHint">Your field is bare for now. Add a debt below, then log your first payment to plant a flower.</p>
+
+  <div class="panel sync-panel">
+    <div class="sync-head">
+      <div>
+        <h2 style="margin:0;">Live bank sync</h2>
+        <p style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;" id="syncStatus">Connect a bank to pull your real credit card balances automatically.</p>
+      </div>
+      <div class="sync-actions">
+        <button id="connectBtn" onclick="connectBank()">Connect bank</button>
+        <button class="ghost" id="syncBtn" onclick="syncBalances()" style="display:none;">Sync now</button>
+      </div>
+    </div>
+    <label class="autosync" id="autosyncWrap" style="display:none;">
+      <input type="checkbox" id="autosync" onchange="toggleAutoSync()"> Keep balances updating automatically
+    </label>
+    <div class="test-tool" id="testTool" style="display:none;">
+      <span>🧪 Testing:</span>
+      <input type="number" id="simAmount" placeholder="200" min="0" step="10">
+      <button class="ghost" onclick="simulatePayment()">Simulate a payment</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Add a debt</h2>
+    <div class="row">
+      <input type="text" id="debtName" placeholder="e.g. Visa card, Student loan">
+      <input type="number" id="debtAmount" placeholder="Amount owed" min="0" step="0.01">
+      <input type="number" id="debtApr" placeholder="APR % (optional)" min="0" step="0.01">
+      <button onclick="addDebt()">Add debt</button>
+    </div>
+    <p style="font-size:13px;color:var(--ink-soft);margin:10px 0 0;">
+      APR is the yearly interest rate on the card (e.g. 24.99). Leave it blank for debts with no interest, like a loan from a friend. Interest is added automatically as time passes.
+    </p>
+  </div>
+
+  <div class="panel">
+    <h2>Your debts</h2>
+    <div id="debtList"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Payoff time machine</h2>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px;">
+      See what paying a little extra each month does to your timeline. Small, steady sacrifices add up faster than almost anyone expects.
+    </p>
+    <div class="tm-baseline">
+      I pay about
+      <input type="number" id="monthlyPayment" min="0" step="10" onchange="setMonthlyPayment()">
+      per month toward my debts.
+    </div>
+    <div class="tm-slider-wrap">
+      <div class="tm-slider-top">
+        <span>Extra per month</span>
+        <span class="tm-extra" id="tmExtraLabel">+$0</span>
+      </div>
+      <input type="range" id="tmSlider" min="0" max="500" step="10" value="0" oninput="updateTimeMachine()">
+    </div>
+    <div id="tmResult" class="tm-result"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Goals</h2>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 14px;">
+      Set a target and a date. For example: knock out half your debt within a year. The app tracks payments you make from now on and tells you if you're on pace.
+    </p>
+    <div class="row" style="margin-bottom:10px;">
+      <input type="number" id="goalAmount" placeholder="Amount to pay off ($)" min="0" step="0.01">
+      <input type="date" id="goalDate">
+      <button onclick="addGoal()">Set goal</button>
+    </div>
+    <div class="row" style="gap:8px;">
+      <button class="ghost" onclick="quickFillGoal(0.5)">Use half my debt</button>
+      <button class="ghost" onclick="quickFillGoal(1)">Use all my debt</button>
+      <button class="ghost" onclick="quickFillDate(12)">1 year from now</button>
+    </div>
+    <div id="goalList" style="margin-top:16px;"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Achievements <span class="medal-count" id="medalCount"></span></h2>
+    <div class="medal-grid" id="medalGrid"></div>
+  </div>
+
+  <p class="footer-note">
+    Your data is saved only in this browser, on this device. Nothing is sent anywhere.<br>
+    <button onclick="simulateMonth()">⏩ Fast-forward 1 month (for testing interest)</button>
+    <button onclick="resetAll()">Reset everything</button>
+  </p>
+
+</div>
+
+<script>
+// ---------- DATA ----------
+// "state" holds everything: the debts, the flowers planted, and earned medals.
+let state = { debts: [], flowers: [], medals: {}, goals: [] };
+
+// Load saved progress from the browser (if any).
+// Makes sure every part of the state exists. Cheap insurance: if any piece
+// is missing (an old save, or a bug elsewhere), the app repairs itself
+// instead of crashing.
+function ensureState() {
+  if (!state || typeof state !== "object") state = {};
+  if (!Array.isArray(state.debts)) state.debts = [];
+  if (!Array.isArray(state.flowers)) state.flowers = [];
+  if (!Array.isArray(state.goals)) state.goals = [];
+  if (!state.medals || typeof state.medals !== "object") state.medals = {};
+}
+
+function load() {
+  const saved = localStorage.getItem("debtbloom");
+  if (saved) state = JSON.parse(saved);
+  ensureState();
+  // Upgrade any debts saved before interest existed, so they have the new fields.
+  state.debts.forEach(d => {
+    if (d.paid === undefined) d.paid = Math.max(0, d.start - d.balance);
+    if (d.interestAccrued === undefined) d.interestAccrued = 0;
+    if (d.apr === undefined) d.apr = 0;
+    if (d.lastAccrued === undefined) d.lastAccrued = Date.now();
+  });
+  accrueInterest();                       // catch up any interest since last visit
+  // Silently mark any medals already deserved, so they don't all pop at once on load.
+  checkAchievements(false);
+}
+// Save progress to the browser.
+function save() {
+  localStorage.setItem("debtbloom", JSON.stringify(state));
+}
+
+// ---------- GOALS ----------
+// A goal is a target: "pay off $X by [date]". We remember how much you'd
+// paid the moment the goal was set (the baseline), so progress only counts
+// payments made from then on.
+function totalPaid() {
+  return state.debts.reduce((s, d) => s + d.paid, 0);
+}
+function totalBalance() {
+  return state.debts.reduce((s, d) => s + d.balance, 0);
+}
+
+function addGoal() {
+  const amount = parseFloat(document.getElementById("goalAmount").value);
+  const dateStr = document.getElementById("goalDate").value;
+  if (!amount || amount <= 0) { alert("Enter an amount to pay off."); return; }
+  if (!dateStr) { alert("Pick a target date."); return; }
+  const deadline = new Date(dateStr + "T23:59:59").getTime();
+  if (deadline <= Date.now()) { alert("Pick a date in the future."); return; }
+
+  state.goals.push({
+    id: Date.now(),
+    target: amount,
+    baseline: totalPaid(),   // total paid at the moment the goal starts
+    createdAt: Date.now(),
+    deadline: deadline
+  });
+  document.getElementById("goalAmount").value = "";
+  document.getElementById("goalDate").value = "";
+  save();
+  render();
+}
+
+function removeGoal(id) {
+  state.goals = state.goals.filter(g => g.id !== id);
+  save();
+  render();
+}
+
+// Quick helpers to fill the form.
+function quickFillGoal(fraction) {
+  const amt = Math.round(totalBalance() * fraction);
+  if (amt <= 0) { alert("Add a debt first, then set a goal."); return; }
+  document.getElementById("goalAmount").value = amt;
+}
+function quickFillDate(months) {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  document.getElementById("goalDate").value = d.toISOString().slice(0, 10);
+}
+
+function renderGoals() {
+  const list = document.getElementById("goalList");
+  if (state.goals.length === 0) {
+    list.innerHTML = '<p style="color:var(--ink-soft);margin:0;">No goals yet. Set one above to give yourself a target.</p>';
+    return;
+  }
+  const paidNow = totalPaid();
+  list.innerHTML = "";
+
+  state.goals.forEach(g => {
+    const progress = Math.max(0, paidNow - g.baseline);   // paid toward THIS goal
+    const pct = Math.min(100, Math.round((progress / g.target) * 100));
+    const remaining = Math.max(0, g.target - progress);
+    const now = Date.now();
+    const done = progress >= g.target;
+    const overdue = now > g.deadline && !done;
+
+    // How much time is left, and what you'd need per month to finish in time.
+    const msLeft = g.deadline - now;
+    const monthsLeft = msLeft / (1000 * 60 * 60 * 24 * 30.44);
+    const perMonth = monthsLeft > 0 ? remaining / monthsLeft : remaining;
+
+    // Are you on pace? Compare progress-so-far to where you "should" be by now.
+    const totalSpan = g.deadline - g.createdAt;
+    const elapsed = now - g.createdAt;
+    const expectedPct = totalSpan > 0 ? Math.min(1, elapsed / totalSpan) : 1;
+    const expectedAmt = g.target * expectedPct;
+    const onPace = progress >= expectedAmt;
+
+    let badge;
+    if (done) badge = '<span class="pace-badge pace-done">Goal met 🎉</span>';
+    else if (overdue) badge = '<span class="pace-badge pace-miss">Past due</span>';
+    else if (onPace) badge = '<span class="pace-badge pace-good">On pace</span>';
+    else badge = '<span class="pace-badge pace-behind">Behind pace</span>';
+
+    const deadlineText = new Date(g.deadline).toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+
+    let footer;
+    if (done) footer = `You paid off ${money(g.target)} toward this goal. Well done.`;
+    else if (overdue) footer = `Deadline passed. You reached ${money(progress)} of ${money(g.target)}.`;
+    else footer = `${money(remaining)} to go by ${deadlineText} · about <b>${money(Math.round(perMonth))}/month</b> to stay on track`;
+
+    const div = document.createElement("div");
+    div.className = "goal" + (done ? " goal-done" : "");
+    div.innerHTML = `
+      <div class="debt-top">
+        <span class="debt-name">Pay off ${money(g.target)}</span>
+        <span>${badge} <button class="goal-x" onclick="removeGoal(${g.id})" aria-label="Remove goal">✕</button></span>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="goal-foot">${money(progress)} of ${money(g.target)} · ${footer}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ---------- PAYOFF TIME MACHINE ----------
+// This plays your debts forward in time, month by month, to answer:
+// "how long until I'm debt-free, and how much interest will I pay?"
+// Each month: interest is added, then your payment is applied to the
+// highest-interest debt first (the math-optimal "avalanche" method).
+function simulatePayoff(monthlyPayment) {
+  const debts = state.debts
+    .filter(d => d.balance > 0)
+    .map(d => ({ balance: d.balance, rate: (d.apr / 100) / 12 }));
+  if (debts.length === 0) return { months: 0, interest: 0, payable: true };
+
+  let months = 0, totalInterest = 0;
+  const MAX = 1200; // 100-year safety cap so we never loop forever
+
+  while (debts.some(d => d.balance > 0.01) && months < MAX) {
+    months++;
+    for (const d of debts) {
+      if (d.balance > 0) {
+        const i = d.balance * d.rate;
+        d.balance += i;
+        totalInterest += i;
+      }
+    }
+    debts.sort((a, b) => b.rate - a.rate); // highest APR first
+    let pot = monthlyPayment;
+    for (const d of debts) {
+      if (pot <= 0) break;
+      if (d.balance <= 0) continue;
+      const pay = Math.min(pot, d.balance);
+      d.balance -= pay;
+      pot -= pay;
+    }
+  }
+  return { months: months, interest: totalInterest, payable: months < MAX };
+}
+
+// A sensible default for "what I pay per month": rough credit-card minimums.
+function suggestedMonthly() {
+  let s = 0;
+  state.debts.forEach(d => { if (d.balance > 0) s += Math.max(25, d.balance * 0.02); });
+  return Math.max(25, Math.round(s));
+}
+
+function fmtMonths(m) {
+  if (m <= 0) return "now";
+  const y = Math.floor(m / 12), mo = m % 12;
+  if (y === 0) return mo + (mo === 1 ? " month" : " months");
+  if (mo === 0) return y + (y === 1 ? " year" : " years");
+  return y + "y " + mo + "m";
+}
+function dateInMonths(m) {
+  const d = new Date();
+  d.setMonth(d.getMonth() + m);
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short" });
+}
+
+function setMonthlyPayment() {
+  const v = parseFloat(document.getElementById("monthlyPayment").value);
+  state.monthlyPayment = (v && v > 0) ? v : null;
+  save();
+  updateTimeMachine();
+}
+
+// Runs every time the slider moves — recalculates instantly, no page reload.
+function updateTimeMachine() {
+  const result = document.getElementById("tmResult");
+  if (state.debts.filter(d => d.balance > 0).length === 0) {
+    result.innerHTML = '<div class="tm-empty">Add a debt above to see your payoff timeline.</div>';
+    return;
+  }
+
+  const base = state.monthlyPayment || suggestedMonthly();
+  const extra = parseFloat(document.getElementById("tmSlider").value) || 0;
+  document.getElementById("tmExtraLabel").textContent = "+" + money(extra);
+
+  const baseline = simulatePayoff(base);
+  const boosted = simulatePayoff(base + extra);
+
+  // If the base payment can't even cover interest, the balance never falls.
+  if (!baseline.payable) {
+    if (!boosted.payable) {
+      result.innerHTML = `<div class="tm-warn">At ${money(base)}/month you're barely covering interest, so the balance never really shrinks. Try raising your monthly amount or dragging the slider up.</div>`;
+      return;
+    }
+    result.innerHTML = `
+      <div class="tm-warn">At ${money(base)}/month alone, interest keeps pace with your payments and the debt lingers for decades.</div>
+      <div class="tm-headline">Adding ${money(extra)}/month gets you debt-free in about <b>${fmtMonths(boosted.months)}</b> — by ${dateInMonths(boosted.months)}.</div>`;
+    return;
+  }
+
+  if (extra === 0) {
+    result.innerHTML = `
+      <div class="tm-baseline-line">At ${money(base)}/month, you're debt-free in <b>${fmtMonths(baseline.months)}</b> (around ${dateInMonths(baseline.months)}), paying ${money(Math.round(baseline.interest))} in interest along the way.</div>
+      <div class="tm-nudge">↑ Drag the slider to see what a little extra does.</div>`;
+    return;
+  }
+
+  const monthsSaved = baseline.months - boosted.months;
+  const interestSaved = Math.round(baseline.interest - boosted.interest);
+
+  result.innerHTML = `
+    <div class="tm-headline">Adding <b>${money(extra)}/month</b> knocks <b>${fmtMonths(monthsSaved)}</b> off your timeline and saves <b>${money(interestSaved)}</b> in interest.</div>
+    <div class="tm-compare">
+      <div class="tm-col">
+        <div class="tm-col-label">Just ${money(base)}/mo</div>
+        <div class="tm-col-big">${fmtMonths(baseline.months)}</div>
+        <div class="tm-col-sub">debt-free ${dateInMonths(baseline.months)}</div>
+        <div class="tm-col-sub">${money(Math.round(baseline.interest))} interest</div>
+      </div>
+      <div class="tm-arrow">→</div>
+      <div class="tm-col tm-col-win">
+        <div class="tm-col-label">${money(base + extra)}/mo</div>
+        <div class="tm-col-big">${fmtMonths(boosted.months)}</div>
+        <div class="tm-col-sub">debt-free ${dateInMonths(boosted.months)}</div>
+        <div class="tm-col-sub">${money(Math.round(boosted.interest))} interest</div>
+      </div>
+    </div>`;
+}
+
+function renderTimeMachine() {
+  const input = document.getElementById("monthlyPayment");
+  const base = state.monthlyPayment || suggestedMonthly();
+  input.value = base;
+  // Let the slider range scale with the size of the monthly payment.
+  const slider = document.getElementById("tmSlider");
+  slider.max = Math.max(300, Math.round(base));
+  updateTimeMachine();
+}
+
+// ---------- INTEREST ----------
+// Credit cards charge interest daily. Each day, a tiny slice of the yearly
+// rate (APR) gets added to the balance, and it compounds (interest on interest).
+// We work out how many days have passed since we last added interest, and
+// catch up all at once. This is what makes the balance "automatically adjust."
+function accrueInterest() {
+  const now = Date.now();
+  const MS_PER_DAY = 86400000;
+  let anyAdded = false;
+
+  state.debts.forEach(d => {
+    // Bank-linked debts get their real balance from Plaid, so we don't
+    // simulate interest on them — that would double-count.
+    if (d.plaidAccountId) { d.lastAccrued = now; return; }
+    if (!d.apr || d.apr <= 0 || d.balance <= 0) { d.lastAccrued = now; return; }
+    const days = Math.floor((now - d.lastAccrued) / MS_PER_DAY);
+    if (days < 1) return;
+
+    const dailyRate = (d.apr / 100) / 365;
+    const grown = d.balance * Math.pow(1 + dailyRate, days);
+    const interest = Math.round((grown - d.balance) * 100) / 100;
+
+    if (interest > 0) {
+      d.balance = Math.round((d.balance + interest) * 100) / 100;
+      d.interestAccrued = Math.round((d.interestAccrued + interest) * 100) / 100;
+      anyAdded = true;
+    }
+    d.lastAccrued = d.lastAccrued + days * MS_PER_DAY; // keep the leftover hours
+  });
+
+  if (anyAdded) save();
+}
+
+// A testing helper: pretend a month has passed so you can SEE interest work
+// without waiting real days. (You'd remove this in a "real" launched version.)
+function simulateMonth() {
+  const THIRTY_DAYS = 30 * 86400000;
+  state.debts.forEach(d => { d.lastAccrued -= THIRTY_DAYS; });
+  accrueInterest();
+  render();
+}
+
+// ---------- ACTIONS ----------
+function addDebt() {
+  const name = document.getElementById("debtName").value.trim();
+  const amount = parseFloat(document.getElementById("debtAmount").value);
+  const apr = parseFloat(document.getElementById("debtApr").value) || 0;
+  if (!name || !amount || amount <= 0) {
+    alert("Please enter a name and an amount greater than zero.");
+    return;
+  }
+  state.debts.push({
+    id: Date.now(),
+    name: name,
+    start: amount,          // original balance when added
+    balance: amount,        // what's owed right now (grows with interest, shrinks with payments)
+    paid: 0,                // total dollars you've paid toward it (only ever goes up)
+    interestAccrued: 0,     // total interest added over time (only ever goes up)
+    apr: apr,               // yearly interest rate, as a percent
+    lastAccrued: Date.now() // when interest was last applied
+  });
+  document.getElementById("debtName").value = "";
+  document.getElementById("debtAmount").value = "";
+  document.getElementById("debtApr").value = "";
+  save();
+  render();
+}
+
+function logPayment(id) {
+  const input = document.getElementById("pay-" + id);
+  const amount = parseFloat(input.value);
+  const debt = state.debts.find(d => d.id === id);
+  if (!amount || amount <= 0) { alert("Enter a payment amount."); return; }
+  if (!debt) return;
+
+  // Bring interest up to date first, so a payment lands on the true balance.
+  accrueInterest();
+
+  const applied = Math.min(amount, debt.balance);
+  debt.balance = Math.round((debt.balance - applied) * 100) / 100;
+  debt.paid = Math.round((debt.paid + applied) * 100) / 100;
+
+  // Plant a new, unique flower for this payment.
+  plantFlower();
+
+  // See if this payment earned any new medals (and celebrate them).
+  checkAchievements(true);
+
+  input.value = "";
+  save();
+  render();
+
+  if (debt.balance <= 0) {
+    setTimeout(() => alert("🎉 You fully paid off " + debt.name + "! That patch is in full bloom."), 100);
+  }
+}
+
+// ---------- EDIT & DELETE DEBTS ----------
+// Balances and rates change in real life, so every debt can be corrected.
+let editingDebtId = null;
+
+function startEditDebt(id) { editingDebtId = id; render(); }
+function cancelEditDebt() { editingDebtId = null; render(); }
+
+function saveEditDebt(id) {
+  const debt = state.debts.find(d => d.id === id);
+  if (!debt) return;
+
+  const name = document.getElementById("edit-name-" + id).value.trim();
+  if (name) debt.name = name;
+
+  // Bank-synced debts get their balance from Plaid, so only the name is editable.
+  if (!debt.plaidAccountId) {
+    const bal = parseFloat(document.getElementById("edit-bal-" + id).value);
+    const apr = parseFloat(document.getElementById("edit-apr-" + id).value);
+    const start = parseFloat(document.getElementById("edit-start-" + id).value);
+
+    if (!isNaN(bal) && bal >= 0) debt.balance = Math.round(bal * 100) / 100;
+    if (!isNaN(apr) && apr >= 0) debt.apr = apr;
+    if (!isNaN(start) && start > 0) debt.start = Math.round(start * 100) / 100;
+
+    // A new rate applies from now on — don't back-charge the old one.
+    debt.lastAccrued = Date.now();
+  }
+
+  editingDebtId = null;
+  save();
+  render();
+}
+
+function deleteDebt(id) {
+  const debt = state.debts.find(d => d.id === id);
+  if (!debt) return;
+  if (confirm(`Remove "${debt.name}"? Flowers you've already grown will stay in your garden.`)) {
+    state.debts = state.debts.filter(d => d.id !== id);
+    editingDebtId = null;
+    save();
+    render();
+  }
+}
+
+function resetAll() {
+  if (confirm("This clears all debts, flowers, goals, and medals. Are you sure?")) {
+    // IMPORTANT: rebuild every part of the state. Leaving any piece out
+    // (like goals or medals) makes it undefined and crashes the app.
+    state = { debts: [], flowers: [], medals: {}, goals: [] };
+    editingDebtId = null;
+    save();
+    render();
+  }
+}
+
+// ---------- FLOWER GENERATION ----------
+// Each flower gets random "genes" so no two look the same.
+const PETAL_COLORS = ["#F08A6E","#EFA1BE","#F6C453","#B49BD8","#FFF4E2","#E8654C","#F4B14A","#C98BD6"];
+const CENTER_COLORS = ["#7A4B2A","#C9892F","#5E3B1E","#E0A93C"];
+
+function plantFlower() {
+  state.flowers.push({
+    type: Math.random() < 0.45 ? "daisy" : (Math.random() < 0.7 ? "tulip" : "round"),
+    petals: 5 + Math.floor(Math.random() * 8),
+    petalColor: PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
+    centerColor: CENTER_COLORS[Math.floor(Math.random() * CENTER_COLORS.length)],
+    scale: 0.8 + Math.random() * 0.5,
+    lean: (Math.random() - 0.5) * 10,
+    jitter: Math.random()
+  });
+}
+
+// ---------- DRAW THE GARDEN ----------
+const SVG_NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs) {
+  const e = document.createElementNS(SVG_NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function drawGarden() {
+  const svg = document.getElementById("garden");
+  svg.innerHTML = "";
+
+  // Sky
+  const sky = el("rect", { x:0, y:0, width:920, height:380, fill:"var(--sky-top)" });
+  svg.appendChild(sky);
+  // Sun
+  svg.appendChild(el("circle", { cx:790, cy:80, r:46, fill:"var(--sun)", opacity:"0.85" }));
+  svg.appendChild(el("circle", { cx:790, cy:80, r:62, fill:"var(--sun)", opacity:"0.25" }));
+
+  // Ground (meadow)
+  svg.appendChild(el("rect", { x:0, y:250, width:920, height:130, fill:"var(--meadow)" }));
+  svg.appendChild(el("rect", { x:0, y:250, width:920, height:14, fill:"var(--meadow-dark)", opacity:"0.5" }));
+  svg.appendChild(el("rect", { x:0, y:360, width:920, height:20, fill:"var(--soil)", opacity:"0.6" }));
+
+  // Plant each flower across the meadow, in rows for depth.
+  const flowers = state.flowers;
+  const perRow = 12;
+  flowers.forEach((f, i) => {
+    const row = Math.floor(i / perRow);
+    const col = i % perRow;
+    const baseY = 270 + row * 30;            // further back rows sit higher
+    const depthScale = 1 - row * 0.12;       // and are a bit smaller
+    const x = 60 + col * 68 + f.jitter * 30;
+    drawFlower(svg, x, baseY, f, Math.max(0.5, f.scale * depthScale));
+  });
+}
+
+function drawFlower(svg, x, y, f, scale) {
+  const g = el("g", { transform: `translate(${x},${y}) scale(${scale}) rotate(${f.lean})` });
+
+  // Stem
+  g.appendChild(el("path", {
+    d: `M0,0 C ${f.lean},-30 ${-f.lean},-60 0,-92`,
+    stroke:"#4F7D33", "stroke-width":"4", fill:"none", "stroke-linecap":"round"
+  }));
+  // A leaf
+  g.appendChild(el("ellipse", {
+    cx:"11", cy:"-46", rx:"12", ry:"5", fill:"#5E9038",
+    transform:"rotate(35 11 -46)"
+  }));
+
+  const bloomY = -92;
+  if (f.type === "tulip") {
+    // Simple tulip cup made of three rounded petals.
+    g.appendChild(el("path", { d:`M-13,${bloomY} Q-15,${bloomY-26} 0,${bloomY-20} Q15,${bloomY-26} 13,${bloomY} Q0,${bloomY+8} -13,${bloomY} Z`, fill:f.petalColor }));
+    g.appendChild(el("path", { d:`M-9,${bloomY-2} Q-3,${bloomY-30} 0,${bloomY-6} Q3,${bloomY-30} 9,${bloomY-2} Z`, fill:f.petalColor, opacity:"0.8" }));
+  } else if (f.type === "round") {
+    // A simple round puff bloom.
+    for (let p = 0; p < f.petals; p++) {
+      const ang = (p / f.petals) * Math.PI * 2;
+      g.appendChild(el("circle", { cx:(Math.cos(ang)*10).toFixed(1), cy:(bloomY + Math.sin(ang)*10).toFixed(1), r:"7", fill:f.petalColor, opacity:"0.92" }));
+    }
+    g.appendChild(el("circle", { cx:"0", cy:bloomY, r:"7", fill:f.centerColor }));
+  } else {
+    // Daisy: petals radiating from a center.
+    for (let p = 0; p < f.petals; p++) {
+      const ang = (p / f.petals) * 360;
+      const petal = el("ellipse", { cx:"0", cy:bloomY-13, rx:"5", ry:"12", fill:f.petalColor });
+      petal.setAttribute("transform", `rotate(${ang} 0 ${bloomY})`);
+      g.appendChild(petal);
+    }
+    g.appendChild(el("circle", { cx:"0", cy:bloomY, r:"8", fill:f.centerColor }));
+  }
+
+  svg.appendChild(g);
+}
+
+// ---------- ACHIEVEMENTS ----------
+// Each medal has a check() that returns true once it's been earned.
+// "m" is a summary of your current progress, built in checkAchievements().
+const ACHIEVEMENTS = [
+  { id:"firstbloom", icon:"🌱", title:"First bloom",   desc:"Plant your first flower",        check:m => m.flowers >= 1 },
+  { id:"tenflowers", icon:"🪴", title:"Green thumb",    desc:"Bloom 10 flowers",               check:m => m.flowers >= 10 },
+  { id:"meadow",     icon:"🌼", title:"Meadow maker",   desc:"Bloom 25 flowers",               check:m => m.flowers >= 25 },
+  { id:"hundred",    icon:"💵", title:"First $100",     desc:"Pay off $100 total",             check:m => m.paid >= 100 },
+  { id:"grand",      icon:"💰", title:"$1,000 club",    desc:"Pay off $1,000 total",           check:m => m.paid >= 1000 },
+  { id:"firstpay",   icon:"🌻", title:"First harvest",  desc:"Fully pay off any one debt",     check:m => m.debtsCleared >= 1 },
+  { id:"halfway",    icon:"⛰️", title:"Halfway there",  desc:"Clear 50% of all you owed",      check:m => m.pctPaid >= 50 },
+  { id:"debtfree",   icon:"🏆", title:"Debt-free",      desc:"Pay off everything",             check:m => m.hasDebts && m.pctPaid >= 100 }
+];
+
+// Work out current progress, then unlock any newly-earned medals.
+// announce = true means show a celebration toast for new unlocks.
+function checkAchievements(announce) {
+  let start = 0, balance = 0, paid = 0, cleared = 0;
+  state.debts.forEach(d => {
+    start += d.start;
+    balance += d.balance;
+    paid += d.paid;
+    if (d.balance <= 0) cleared++;
+  });
+  const owedTotal = start + state.debts.reduce((s, d) => s + d.interestAccrued, 0);
+  const m = {
+    flowers: state.flowers.length,
+    paid: paid,
+    debtsCleared: cleared,
+    pctPaid: owedTotal > 0 ? (paid / owedTotal) * 100 : 0,
+    hasDebts: state.debts.length > 0
+  };
+
+  ACHIEVEMENTS.forEach(a => {
+    if (!state.medals[a.id] && a.check(m)) {
+      state.medals[a.id] = true;
+      if (announce) showToast(a);
+    }
+  });
+}
+
+function showToast(a) {
+  const wrap = document.getElementById("toastWrap");
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerHTML = `
+    <span class="toast-icon">${a.icon}</span>
+    <div>
+      <div class="toast-kicker">Medal earned</div>
+      <div class="toast-title">${a.title}</div>
+    </div>`;
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 4200);
+}
+
+function renderMedals() {
+  const grid = document.getElementById("medalGrid");
+  const earned = ACHIEVEMENTS.filter(a => state.medals[a.id]).length;
+  document.getElementById("medalCount").textContent = earned + " / " + ACHIEVEMENTS.length;
+  grid.innerHTML = "";
+  ACHIEVEMENTS.forEach(a => {
+    const has = !!state.medals[a.id];
+    const div = document.createElement("div");
+    div.className = "medal " + (has ? "earned" : "locked");
+    div.innerHTML = `
+      <div class="medal-icon">${has ? a.icon : "🔒"}</div>
+      <div>
+        <div class="medal-title">${a.title}</div>
+        <div class="medal-desc">${a.desc}</div>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ---------- RENDER THE PAGE ----------
+function money(n) { return "$" + n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+
+function render() {
+  ensureState();   // never let a missing piece crash the whole page
+  // Stats
+  let paid = 0, left = 0;
+  state.debts.forEach(d => { paid += d.paid; left += d.balance; });
+  document.getElementById("statPaid").textContent = money(Math.round(paid));
+  document.getElementById("statLeft").textContent = money(Math.round(left));
+  document.getElementById("statBloom").textContent = state.flowers.length;
+
+  // Empty hint
+  document.getElementById("emptyHint").style.display = state.flowers.length ? "none" : "block";
+
+  // Debt list
+  const list = document.getElementById("debtList");
+  if (state.debts.length === 0) {
+    list.innerHTML = '<p style="color:var(--ink-soft);margin:0;">No debts yet. Add one above to begin.</p>';
+  } else {
+    list.innerHTML = "";
+    state.debts.forEach(d => {
+      // Progress = how much you've paid vs the full amount you'll owe (principal + interest).
+      const owedTotal = d.start + d.interestAccrued;
+      const pct = owedTotal > 0 ? Math.min(100, Math.round((d.paid / owedTotal) * 100)) : 0;
+      const isPaid = d.balance <= 0;
+      // Rough estimate of next month's interest at the current balance.
+      const monthlyEst = d.apr > 0 && !isPaid
+        ? d.balance * (Math.pow(1 + (d.apr/100)/365, 30) - 1) : 0;
+
+      const div = document.createElement("div");
+      div.className = "debt" + (isPaid ? " paid" : "");
+
+      // If this debt is being edited, show the edit form instead of the card.
+      if (editingDebtId === d.id) {
+        div.innerHTML = `
+          <div class="edit-form">
+            <label class="edit-label">Name</label>
+            <input type="text" id="edit-name-${d.id}" value="${d.name.replace(/"/g, '&quot;')}">
+            ${d.plaidAccountId ? `
+              <p class="interest-note" style="color:var(--ink-soft);">This debt is synced with your bank, so its balance and APR come from there and can't be edited by hand.</p>
+            ` : `
+              <label class="edit-label">Current balance owed</label>
+              <input type="number" id="edit-bal-${d.id}" value="${d.balance}" min="0" step="0.01">
+              <label class="edit-label">APR % (interest rate)</label>
+              <input type="number" id="edit-apr-${d.id}" value="${d.apr}" min="0" step="0.01">
+              <label class="edit-label">Original amount (used for progress)</label>
+              <input type="number" id="edit-start-${d.id}" value="${d.start}" min="0" step="0.01">
+            `}
+            <div class="edit-actions">
+              <button onclick="saveEditDebt(${d.id})">Save changes</button>
+              <button class="ghost" onclick="cancelEditDebt()">Cancel</button>
+            </div>
+          </div>`;
+        list.appendChild(div);
+        return;
+      }
+
+      div.innerHTML = `
+        <div class="debt-top">
+          <span class="debt-name">${d.name}${d.plaidAccountId ? ` <span class="apr-tag" style="background:#E1F5EE;color:#0F6E56;">🔗 synced</span>` : ""}${d.apr > 0 ? ` <span class="apr-tag">${d.apr}% APR</span>` : ""}</span>
+          <span class="debt-right">
+            ${isPaid
+              ? '<span class="paid-badge">Paid off 🌻</span>'
+              : `<span class="debt-bal"><b>${money(d.balance)}</b> left of ${money(d.start)}</span>`}
+            <button class="icon-btn" title="Edit this debt" onclick="startEditDebt(${d.id})">✏️</button>
+            <button class="icon-btn" title="Remove this debt" onclick="deleteDebt(${d.id})">✕</button>
+          </span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+        ${d.interestAccrued > 0
+          ? `<div class="interest-note">💸 ${money(d.interestAccrued)} added in interest so far${monthlyEst > 0 ? ` · about ${money(Math.round(monthlyEst))}/mo at this balance` : ""}</div>`
+          : (monthlyEst > 0 ? `<div class="interest-note">💸 grows about ${money(Math.round(monthlyEst))}/mo if unpaid</div>` : "")}
+        ${isPaid || d.plaidAccountId ? (d.plaidAccountId && !isPaid ? `<div class="interest-note" style="color:var(--ink-soft);">Balance comes straight from your bank. Flowers bloom automatically when it drops.</div>` : "") : `
+          <div class="pay-row">
+            <input type="number" id="pay-${d.id}" placeholder="Payment amount" min="0" step="0.01">
+            <button onclick="logPayment(${d.id})">Plant a flower 🌱</button>
+          </div>`}
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  renderTimeMachine();
+  renderGoals();
+  renderMedals();
+  drawGarden();
+}
+
+// ---------- LIVE BANK SYNC (Plaid) ----------
+// The browser never sees your secret key. It only talks to our own little
+// server (server.js), which does the real Plaid work behind the scenes.
+let autoSyncTimer = null;
+
+// On load, ask our server whether a bank is already connected.
+async function checkConnection() {
+  try {
+    const r = await fetch('/api/status');
+    const data = await r.json();
+    if (data.connected) {
+      showConnected();
+      syncBalances();  // pull the latest right away
+    }
+  } catch (e) {
+    document.getElementById('syncStatus').textContent =
+      'Bank sync needs the server running. Open the app via http://localhost:8080, not by double-clicking the file.';
+  }
+}
+
+function showConnected() {
+  document.getElementById('connectBtn').textContent = 'Connect another bank';
+  document.getElementById('syncBtn').style.display = 'inline-block';
+  document.getElementById('autosyncWrap').style.display = 'flex';
+  document.getElementById('testTool').style.display = 'flex';
+}
+
+// Sandbox testing: tell the server to report a lower balance, then sync,
+// so you can watch a payment bloom the garden. Remove this for a real launch.
+async function simulatePayment() {
+  const amt = parseFloat(document.getElementById('simAmount').value) || 200;
+  try {
+    await fetch('/api/sandbox/simulate_payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: amt }),
+    });
+    syncBalances();
+  } catch (e) {
+    document.getElementById('syncStatus').textContent = 'Test payment failed — is the server running?';
+  }
+}
+
+// Step 1+2: open Plaid Link, then hand the result back to our server.
+async function connectBank() {
+  const status = document.getElementById('syncStatus');
+  try {
+    const r = await fetch('/api/create_link_token', { method: 'POST' });
+    const data = await r.json();
+    if (!data.link_token) throw new Error(data.error || 'no token');
+
+    const handler = Plaid.create({
+      token: data.link_token,
+      onSuccess: async (public_token) => {
+        status.textContent = 'Linking account...';
+        await fetch('/api/exchange_public_token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ public_token }),
+        });
+        showConnected();
+        syncBalances();
+      },
+      onExit: () => { status.textContent = 'Bank connection cancelled.'; },
+    });
+    handler.open();
+  } catch (e) {
+    status.textContent = 'Could not start bank connection. Is the server running with your keys set?';
+  }
+}
+
+// Step 3: pull current balances and fold them into your garden.
+async function syncBalances() {
+  const status = document.getElementById('syncStatus');
+  status.textContent = 'Syncing balances...';
+  try {
+    const r = await fetch('/api/liabilities');
+    const data = await r.json();
+    if (!data.cards) throw new Error(data.error || 'no data');
+
+    let plantedFlowers = 0;
+    data.cards.forEach(card => {
+      let debt = state.debts.find(d => d.plaidAccountId === card.account_id);
+      if (!debt) {
+        // First time seeing this card — add it as a debt.
+        debt = {
+          id: Date.now() + Math.random(),
+          name: card.name,
+          start: card.balance,
+          balance: card.balance,
+          paid: 0,
+          interestAccrued: 0,
+          apr: card.apr,
+          lastAccrued: Date.now(),
+          plaidAccountId: card.account_id,
+        };
+        state.debts.push(debt);
+      } else {
+        // If the balance dropped since last sync, you paid it down —
+        // count it as a payment and reward it with flowers.
+        const drop = debt.balance - card.balance;
+        if (drop > 0.5) {
+          debt.paid = Math.round((debt.paid + drop) * 100) / 100;
+          const n = Math.min(5, Math.max(1, Math.round(drop / 50)));
+          for (let i = 0; i < n; i++) plantFlower();
+          plantedFlowers += n;
+        }
+        debt.balance = card.balance;
+        debt.apr = card.apr;
+      }
+    });
+
+    if (plantedFlowers > 0) checkAchievements(true);
+    save();
+    render();
+    const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    status.textContent = `Balances updated at ${t}. ${data.cards.length} card(s) synced.`;
+  } catch (e) {
+    status.textContent = 'Sync failed. Check that the server is running and a bank is linked.';
+  }
+}
+
+function toggleAutoSync() {
+  const on = document.getElementById('autosync').checked;
+  if (on) {
+    syncBalances();
+    autoSyncTimer = setInterval(syncBalances, 60000); // every 60 seconds
+  } else {
+    clearInterval(autoSyncTimer);
+  }
+}
+
+// ---------- START ----------
+load();
+render();
+checkConnection();
+</script>
+</body>
+</html>
